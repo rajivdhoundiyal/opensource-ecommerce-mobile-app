@@ -896,10 +896,10 @@ class ApiClient {
   }
 
   //place order
-  Future<SaveOrderModel?> placeOrder() async {
+  Future<SaveOrderModel?> placeOrder(String? omiseToken, String? paymentType, String? amount, String? currency) async {
     var response = await (client.clientToQuery()).mutate(MutationOptions(
         document: gql(
-          mutation.placeOrder(),
+          mutation.placeOrder(omiseToken, paymentType, amount, currency),
         ),
         fetchPolicy: FetchPolicy.networkOnly));
 
@@ -1196,5 +1196,19 @@ class ApiClient {
     );
   }
 
+  // Future<SetDefaultAddress?> createCardPaymentCharge(String tokenId) async {
+    
+  //   var response = await (client.clientToQuery()).mutate(MutationOptions(
+  //       document: gql(
+  //         mutation.setDefaultAddress(id),
+  //       ),
+  //       fetchPolicy: FetchPolicy.networkOnly));
+
+  //   return handleResponse(
+  //     response,
+  //     'setDefaultAddress',
+  //         (json) => SetDefaultAddress.fromJson(json),
+  //   );
+  // }
 
 }

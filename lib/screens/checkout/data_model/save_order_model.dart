@@ -20,7 +20,8 @@ class SaveOrderModel extends BaseModel{
   String? redirectUrl;
   String?  selectedMethod;
   Order? order;
-  SaveOrderModel({this.redirectUrl,this.selectedMethod,this.order});
+  String? chargeId;
+  SaveOrderModel({this.redirectUrl,this.selectedMethod,this.order, this.chargeId});
 
   factory SaveOrderModel.fromJson(Map<String, dynamic> json) =>
       _$SaveOrderModelFromJson(json);

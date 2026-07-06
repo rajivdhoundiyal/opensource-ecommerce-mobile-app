@@ -26,7 +26,7 @@ class DownloadProductOptions extends StatefulWidget {
 }
 
 class _DownloadProductOptionsState extends State<DownloadProductOptions> {
-  final buttonCarouselController = CarouselController();
+  final buttonCarouselController = CarouselSliderController();
   List<String> selected = [];
 
   @override

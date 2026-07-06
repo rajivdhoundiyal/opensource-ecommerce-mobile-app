@@ -23,13 +23,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 class MobiKulTheme {
   static String? fontFamily = GoogleFonts.montserrat().fontFamily;
-  static const Color primaryColor = Color(0xFFFFFFFF);
-  static const Color accentColor = Color(0xFF000000);
+  static const Color primaryColor = Color(0xFFFE7F00);
+  static const Color accentColor = Color(0xFFFE7F00);
 
   // replace with client accent color
   static const Color skeletonLoaderColorLight = Color(0xFFE0E0E0);
   static const Color skeletonLoaderColorDark = Color(0xFF424242);
-  static const Color appbarTextColor = Color(0xFF000000);
+  static const Color appbarTextColor = Colors.white;
 
   static const Color _lightPrimaryColor = Colors.white24;
   static const Color _lightPrimaryVariantColor = Colors.white;

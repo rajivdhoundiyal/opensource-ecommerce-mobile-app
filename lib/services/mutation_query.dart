@@ -3197,13 +3197,22 @@ message
     }""";
   }
 
-  String placeOrder(){
+  String placeOrder(String? omiseToken, String? paymentType, String? amount, String? currency){
     return """
     mutation placeOrder {
-    placeOrder {
+    placeOrder (
+      input: {
+        omiseToken: $omiseToken,
+        paymentType: $paymentType,
+        amount: $amount,
+        currency: $currency,
+      }
+    )
+    {
         success
         redirectUrl
         selectedMethod
+        chargeId
         order {
             id
             customerEmail

@@ -9,7 +9,7 @@
  */
 
 
-
+import 'package:bagisto_app_demo/screens/sign_in/view/social/google_sign_in.dart';
 import 'package:bagisto_app_demo/screens/sign_in/utils/index.dart';
 
 class SignInBloc extends Bloc<SignInBaseEvent, SignInBaseState> {
@@ -38,12 +38,16 @@ class SignInBloc extends Bloc<SignInBaseEvent, SignInBaseState> {
       }
     } else if (event is SocialLoginEvent) {
       try {
-        SignInModel? signUpResponseModel = await repository!.socialLogin(
-            event.email ?? "",
-            event.firstName ?? "",
-            event.lastName ?? "",
-            event.phone ?? "",event.signUpType ?? "");
-
+        SignInModel? signUpResponseModel = null;
+        if(event.signUpType == 'Google' || event.signUpType == 'Facebook') {
+          signUpResponseModel = await SocialLoginService().doLogin(event.signUpType);
+        } else {
+          signUpResponseModel = await repository!.socialLogin(
+              event.email ?? "",
+              event.firstName ?? "",
+              event.lastName ?? "",
+              event.phone ?? "",event.signUpType ?? "");
+        }
 
 
         if (signUpResponseModel?.status == true) {

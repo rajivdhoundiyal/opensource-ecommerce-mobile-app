@@ -10,7 +10,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="webkul.bagisto_app_demo">
+    package="com.lofl.app">
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -30,9 +30,11 @@
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
 
     <application
-        android:label="Bagisto Laravel App"
+        android:label="Lord Of Liquor"
         android:usesCleartextTraffic="true"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher_round">
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+        <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

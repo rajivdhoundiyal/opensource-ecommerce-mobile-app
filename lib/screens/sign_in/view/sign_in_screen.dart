@@ -9,7 +9,12 @@
  */
 
 
+import 'dart:convert';
+
+import 'package:bagisto_app_demo/screens/sign_in/view/social/google_sign_in.dart';
 import 'package:bagisto_app_demo/screens/sign_in/utils/index.dart';
+import 'package:social_media_sign_in_buttons/social_media_sign_in_buttons.dart';
+
 
 import '../../../utils/server_configuration.dart';
 
@@ -35,6 +40,23 @@ class _SignInScreenState extends State<SignInScreen> with EmailValidator {
       GlobalKey<ScaffoldMessengerState>();
 
   String? successMsg;
+  final double iconSide = 30;
+  final ButtonStyle buttonStyle = ButtonStyle(
+    side: MaterialStatePropertyAll(
+      BorderSide(
+        color: Colors.white,
+        width: 0,
+      ),
+    ),
+    minimumSize: MaterialStatePropertyAll(Size(0, 0)),
+    backgroundColor: MaterialStatePropertyAll(Colors.white),
+    padding: MaterialStatePropertyAll(EdgeInsets.all(0)),
+    shape: MaterialStatePropertyAll(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+    ),
+    fixedSize: MaterialStatePropertyAll(Size(70, 70)),
+  );
+
 
   @override
   void initState() {
@@ -62,6 +84,14 @@ class _SignInScreenState extends State<SignInScreen> with EmailValidator {
   void dispose() {
     signInBloc?.close();
     super.dispose();
+  }
+
+  void _showButtonPressDialog(BuildContext context, String provider) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('$provider Button Pressed!'),
+      backgroundColor: Colors.black26,
+      duration: const Duration(milliseconds: 400),
+    ));
   }
 
   ///Sign in Bloc Container
@@ -232,6 +262,28 @@ class _SignInScreenState extends State<SignInScreen> with EmailValidator {
                         StringConstants.signIn.localized().toUpperCase(),
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(color:  Theme.of(context).colorScheme.secondaryContainer,)),
                   ),
+                  const Divider(color: Color.fromARGB(255, 227, 226, 226),
+                    height: 30,
+                    thickness: 1.0, // Line thicknessE
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GoogleIconMiniButton(
+                          iconWidth: iconSide,
+                          iconHeight: iconSide,
+                          style: buttonStyle,
+                          onPressed: () => _onPressSocialLoginButton('Google'),
+                      ),
+                      const SizedBox(width: 8.0),
+                      FacebookIconMiniButton(
+                        iconWidth: iconSide,
+                        iconHeight: iconSide,
+                        style: buttonStyle,
+                        onPressed: () => _onPressSocialLoginButton('Facebook'),
+                      ),
+                  ]),
                   const SizedBox(height: AppSizes.spacingMedium),
                   MaterialButton(
                     shape: RoundedRectangleBorder(
@@ -282,6 +334,10 @@ class _SignInScreenState extends State<SignInScreen> with EmailValidator {
       signInBloc?.add(FetchSignInEvent(
           email: emailController.text, password: passwordController.text, fingerPrint: false));
     }
+  }
+
+  _onPressSocialLoginButton(String? type) {
+    signInBloc?.add(SocialLoginEvent(signUpType: type));
   }
 
   showLoadingDialog() {

@@ -30,7 +30,7 @@ class ProductImageView extends StatefulWidget {
 }
 
 class ProductImageViewState extends State<ProductImageView> {
-  final buttonCarouselController = CarouselController();
+  final buttonCarouselController = CarouselSliderController();
   int? _current = 0;
 
   @override

@@ -13,7 +13,7 @@
 // Application Specific Constants
 const int defaultSplashDelay = 3;
 
-const String baseUrl = "";
+const String baseUrl = "http://10.0.2.2:8080/graphql";
 
 ///default channel id
 const String defaultChannelId = "1";
@@ -23,21 +23,21 @@ const String defaultStoreCode = "en";
 
 const String defaultLanguageName = "English";
 
-const String defaultCurrencyCode = "USD";
+const String defaultCurrencyCode = "SGD";
 
-const String defaultCurrencyName = "US Dollar";
+const String defaultCurrencyName = "SG Dollar";
 
-const String defaultAppTitle = "Bagisto App";
+const String defaultAppTitle = "Lord Of Liquor";
 
 ///default channel name
 const String defaultChannelName = "com.webkul.bagisto_mobikul/channel";
 
-const String demoEmail = "john@example.com";
+const String demoEmail = "user@example.com";
 
-const String demoPassword = "demo123";
+const String demoPassword = "password";
 
 ///supported locales in app
-List<String> supportedLocale = ['en', 'fr', 'nl', 'tr', 'es', 'ar', 'pt_br'];
+List<String> supportedLocale = ['en'];
 
 const bool isPreFetchingEnable = true;
 

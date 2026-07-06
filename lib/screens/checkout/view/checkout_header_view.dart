@@ -28,13 +28,13 @@ class _CheckoutHeaderViewState extends State<CheckoutHeaderView> {
   late List<String>? titles = [
     StringConstants.addressCheckout.localized(),
     StringConstants.shipping.localized(),
-    StringConstants.payment.localized(),
+    // StringConstants.payment.localized(),
     StringConstants.checkout.localized(),
   ];
   List<IconData> stepIcons = [
     Icons.person,
     Icons.local_shipping,
-    Icons.payment,
+    // Icons.payment,
     Icons.add_shopping_cart_sharp
   ];
   final Color _activeColor = MobiKulTheme.accentColor;

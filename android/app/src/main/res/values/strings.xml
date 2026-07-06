@@ -25,5 +25,6 @@
     <string name="model_error">Unable to load the model</string>
     <string name="dismiss">Dismiss</string>
     <string name="try_again">Try Again</string>
-
+    <string name="facebook_app_id">1427679615206348</string>
+    <string name="facebook_client_token">de5a154caed3aa11903cbf7fcb69cb34</string>
 </resources>

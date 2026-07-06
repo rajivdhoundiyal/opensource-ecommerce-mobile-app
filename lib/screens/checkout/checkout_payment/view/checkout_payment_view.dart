@@ -19,7 +19,7 @@ export 'package:bagisto_app_demo/screens/checkout/data_model/checkout_save_shipp
 class CheckoutPaymentView extends StatefulWidget {
   final String? shippingId;
   final Function(String)? callBack;
-  final ValueChanged<String>? priceCallback;
+  final Function(String?, String?, String?)? priceCallback;
   final String? total;
   PaymentMethods? paymentMethods;
 
@@ -50,7 +50,14 @@ class _CheckoutPaymentViewState extends State<CheckoutPaymentView> {
           .add(CheckOutPaymentEvent(shippingMethod: widget.shippingId));
     }
     return BlocConsumer<CheckOutPaymentBloc, CheckOutPaymentBaseState>(
-      listener: (BuildContext context, CheckOutPaymentBaseState state) {},
+      listener: (BuildContext context, CheckOutPaymentBaseState state) {
+        if (state is CheckOutFetchPaymentState && state.status == CheckOutPaymentStatus.success) {
+          var paymentMethods = state.checkOutShipping?.paymentMethods?.any((element) => element.method == "omise_button");
+          if(paymentMethods != null) {
+            widget.priceCallback!(widget.total, widget.shippingId, "omise_button");
+          }
+        }
+      },
       builder: (BuildContext context, CheckOutPaymentBaseState state) {
         return (widget.paymentMethods?.paymentMethods ?? []).isNotEmpty ? _paymentMethods(widget.paymentMethods!)
             : buildUI(context, state);
@@ -62,6 +69,10 @@ class _CheckoutPaymentViewState extends State<CheckoutPaymentView> {
   Widget buildUI(BuildContext context, CheckOutPaymentBaseState state) {
     if (state is CheckOutFetchPaymentState) {
       if (state.status == CheckOutPaymentStatus.success) {
+        var paymentMethods = state.checkOutShipping?.paymentMethods?.any((element) => element.method == "omise_button");
+        if(paymentMethods != null) {
+          widget.priceCallback!(widget.total, widget.shippingId, "omise_button");
+        }
         return _paymentMethods(state.checkOutShipping!);
       }
       if (state.status == CheckOutPaymentStatus.fail) {
@@ -86,7 +97,7 @@ class _CheckoutPaymentViewState extends State<CheckoutPaymentView> {
   _paymentMethods(PaymentMethods checkOutShipping) {
     if (widget.priceCallback != null) {
       widget.priceCallback!(
-          checkOutShipping.cart?.formattedPrice?.grandTotal ?? "");
+          checkOutShipping.cart?.formattedPrice?.grandTotal ?? "", "", "");
     }
     var paymentMethods = checkOutShipping.paymentMethods
         ?.where((element) => availablePaymentMethods.contains(element.method));

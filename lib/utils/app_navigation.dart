@@ -8,7 +8,7 @@
  *   @link https://store.webkul.com/license.html
  */
 
-
+import 'package:omise_flutter/omise_flutter.dart';
 import 'package:bagisto_app_demo/data_model/app_route_arguments.dart';
 import 'package:bagisto_app_demo/data_model/order_model/order_detail_model.dart';
 import 'package:bagisto_app_demo/screens/account/bloc/account_info_bloc.dart';
@@ -260,7 +260,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
           builder: (_) => BlocProvider(
             create: (context) =>
-                SaveOrderBloc(SaveOrderRepositoryImp()),
+                SaveOrderBloc(SaveOrderRepositoryImp(ModalRoute.of(context)!.settings.arguments as Map<String, String>?)),
             child: const CheckOutSaveOrder(),
           ));
 

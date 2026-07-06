@@ -1,4 +1,4 @@
-package webkul.bagisto_app_demo
+package com.lofl.app
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterFragmentActivity

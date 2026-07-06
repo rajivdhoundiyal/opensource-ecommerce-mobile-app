@@ -30,7 +30,7 @@ class DownloadProductSample extends StatefulWidget {
 }
 
 class _DownloadProductSampleState extends State<DownloadProductSample> {
-  final buttonCarouselController = CarouselController();
+  final buttonCarouselController = CarouselSliderController();
   ProductScreenBLoc? productScreenBLoc;
   var loadData = 0.0;
   bool showLoader = false;

@@ -11,6 +11,8 @@
 
 import 'package:bagisto_app_demo/screens/checkout/utils/index.dart';
 import '../checkout_payment/view/checkout_payment_view.dart';
+import 'package:omise_flutter/omise_flutter.dart';
+
 class CheckoutScreen extends StatefulWidget {
  final  CartScreenBloc? cartScreenBloc;
  final String? total;
@@ -29,6 +31,12 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  final omisePayment = OmisePayment(
+    publicKey: "pkey_test_62ilojq0zt9viuuifd0",
+    enableDebug: true,
+    locale: OmiseLocale.en,
+  );
+
   int currentIndex = 1;
   PaymentMethods? paymentMethods;
   Map<String, dynamic>? billing;
@@ -328,12 +336,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             callBack: (id) {
               paymentId = id;
             },
-            priceCallback: (price) {
+            priceCallback: (price, shippingId, paymentId) {
               _myStreamCtrl.sink.add(price);
+              this.paymentId = paymentId ?? "omise_button";
+              setState(() {
+                currentIndex = currentIndex+1;
+              });
             },
           ),
         );
-
       case 4:
         return BlocProvider(
           create: (context) =>
@@ -447,8 +458,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 }
                               }
                               if (currentIndex == 5) {
-                                Navigator.pushReplacementNamed(
-                                    context, orderPlacedScreen);
+                                _openPaymentMethodsPage().then((result) => {
+                                  if (context.mounted) {
+                                    Navigator.pushReplacementNamed(
+                                        context, orderPlacedScreen, arguments: result)
+                                  }
+                                });
                               }
                             },
                             child: Text(
@@ -523,8 +538,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               }
                             }
                             if (currentIndex == 5) {
-                              Navigator.pushReplacementNamed(
-                                  context, orderPlacedScreen);
+                              _openPaymentMethodsPage().then((result) => {
+                                  if (context.mounted) {
+                                    Navigator.pushReplacementNamed(
+                                        context, orderPlacedScreen, arguments: result)
+                                  }
+                              });
                             }
                           },
                           child: Text(
@@ -546,5 +565,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ],
       ),
     );
+  }
+
+  Future<Map<String, dynamic>?> _openPaymentMethodsPage() async {
+    List<PaymentMethodName> paymentMethodsList = [PaymentMethodName.card];
+    final OmisePaymentResult? omisePaymentResult =
+        await Navigator.push<OmisePaymentResult>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => omisePayment.buildCardPage()
+      ),
+    );
+    // Check if payment result is available
+    if (omisePaymentResult == null) {
+      print('No payment'); // Logs if no payment was made
+    } else {
+      // Logs token ID if available
+      if (omisePaymentResult.token != null) {
+        print(omisePaymentResult.token!.id);
+      }
+      if (omisePaymentResult.source != null) {
+        print(omisePaymentResult.source!.id);
+      }
+    }
+    
+    return {"result": omisePaymentResult?.token?.id, "paymentType": "card", "amount": widget.total, "currency": "SGD"};
   }
 }
