@@ -111,7 +111,7 @@ class _LOFLCreditCardPageState extends State<LOFLCreditCardPage> {
           );
         } else {
           if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(omisePaymentResult);
           }
         }
       }
