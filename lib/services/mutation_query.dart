@@ -1758,17 +1758,18 @@ message
         String? firstName,
         String? lastName,
         String? email,
-        String? signUpType}) {
+        String? signUpType,
+        String? token}) {
     return """
-    mutation customerSocialSignUp {
-    customerSocialSignUp(input: {
-        phone: $phone
-        firstName: $firstName
-        lastName: $lastName
-        email: $email
-        signUpType: $signUpType
+    mutation customerSocialSignIn {
+    customerSocialSignIn(input: {
+        phone: "$phone"
+        firstName: "$firstName"
+        lastName: "$lastName"
+        email: "$email"
+        signupType: $signUpType,
+        idToken: "$token"
     }) {
-        status
         success
         accessToken
         tokenType
@@ -1788,7 +1789,6 @@ message
             subscribedToNewsLetter
             isVerified
             token
-            notes
             status
             createdAt
             updatedAt
@@ -3197,27 +3197,32 @@ message
     }""";
   }
 
-  String placeOrder(String? omiseToken, String? paymentType, String? amount, String? currency){
+  String placeOrder(String? omiseToken, String? paymentType, String? amount, String? currency, String? chargeId){
     return """
     mutation placeOrder {
     placeOrder (
       input: {
-        omiseToken: $omiseToken,
-        paymentType: $paymentType,
-        amount: $amount,
-        currency: $currency,
+        omiseToken: "$omiseToken",
+        paymentType: "$paymentType",
+        amount: "$amount",
+        currency: "$currency",
+        chargeId: "$chargeId"
       }
     )
     {
         success
         redirectUrl
         selectedMethod
-        chargeId
         order {
             id
             customerEmail
             customerFirstName
             customerLastName
+        }
+        payment {
+            chargeId
+            qrCodePath
+            qrFileLink
         }
       }
     }""";
@@ -4616,6 +4621,31 @@ message
     }
     }
     """;
+  }
+
+  String enquirePaymentStatus(String? chargeId){
+    return """
+    query enquireStatus {
+      enquireStatus (
+        chargeId: "$chargeId"
+      )
+    {
+        success
+        redirectUrl
+        selectedMethod
+        order {
+            id
+            customerEmail
+            customerFirstName
+            customerLastName
+        }
+        payment {
+            chargeId
+            qrCodePath
+            qrFileLink
+        }
+      }
+    }""";
   }
 
 }

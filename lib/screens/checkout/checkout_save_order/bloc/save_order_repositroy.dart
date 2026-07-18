@@ -11,24 +11,20 @@
 
 
 import 'package:bagisto_app_demo/screens/checkout/utils/index.dart';
-import 'package:omise_flutter/omise_flutter.dart';
 import '../../data_model/save_order_model.dart';
 
 abstract class SaveOrderRepository{
-  Future<SaveOrderModel>savePaymentReview();
+  Future<SaveOrderModel>savePaymentReview(Map<String, dynamic>? arguments);
 
 }
 class SaveOrderRepositoryImp implements SaveOrderRepository {
-
-  Map<String, dynamic>? result;
-
-  SaveOrderRepositoryImp(this.result);
+  SaveOrderRepositoryImp();
 
   @override
-  Future<SaveOrderModel> savePaymentReview() async {
+  Future<SaveOrderModel> savePaymentReview(Map<String, dynamic>? arguments) async {
     SaveOrderModel? saveOrderModel;
     try {
-      saveOrderModel = await ApiClient().placeOrder(result?['token'], result?['paymentType'], result?['amount'], result?['currency']);
+      saveOrderModel = await ApiClient().placeOrder(arguments?['token'], arguments?['paymentType'], arguments?['amount'], arguments?['currency'], arguments?['chargeId']);
     } catch (error, stacktrace) {
       debugPrint("Error --> $error");
       debugPrint("StackTrace --> $stacktrace");

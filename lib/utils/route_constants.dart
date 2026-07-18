@@ -41,7 +41,7 @@ const String refundDetails = "refundDetails";
 const String currencyScreen = "currencyScreen";
 const String languageScreen = "languageScreen";
 const String contactUsScreen = "contactUsScreen";
-
+const String creditCardScreen = 'creditCardScreen';
 
 
 

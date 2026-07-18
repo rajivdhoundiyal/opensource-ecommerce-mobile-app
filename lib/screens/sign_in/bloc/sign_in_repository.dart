@@ -15,7 +15,7 @@ abstract class SignInRepository {
   Future<SignInModel> callSignInApi(String email, String password);
 
   Future<SignInModel?> socialLogin(
-      String email, String firstName, String lastName, String phone, String signUpType);
+      String email, String firstName, String lastName, String phone, String signUpType, String token);
 }
 
 class SignInRepositoryImp implements SignInRepository {
@@ -34,12 +34,12 @@ class SignInRepositoryImp implements SignInRepository {
 
   @override
   Future<SignInModel?> socialLogin(String email, String firstName,
-      String lastName, String phone, String signUpType) async {
+      String lastName, String phone, String signUpType, String token) async {
     SignInModel? signUpResponseModel;
 
     try {
       signUpResponseModel =
-          await ApiClient().socialLogin(email, firstName, lastName, phone, signUpType);
+          await ApiClient().socialLogin(email, firstName, lastName, phone, signUpType, token);
     } catch (error, stacktrace) {
       debugPrint("Error --> $error");
       debugPrint("StackTrace --> $stacktrace");

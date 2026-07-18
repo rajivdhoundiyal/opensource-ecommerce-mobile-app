@@ -274,15 +274,15 @@ class _SignInScreenState extends State<SignInScreen> with EmailValidator {
                           iconWidth: iconSide,
                           iconHeight: iconSide,
                           style: buttonStyle,
-                          onPressed: () => _onPressSocialLoginButton('Google'),
+                          onPressed: () => _onPressSocialLoginButton('GOOGLE'),
                       ),
-                      const SizedBox(width: 8.0),
-                      FacebookIconMiniButton(
-                        iconWidth: iconSide,
-                        iconHeight: iconSide,
-                        style: buttonStyle,
-                        onPressed: () => _onPressSocialLoginButton('Facebook'),
-                      ),
+                      // const SizedBox(width: 8.0),
+                      // FacebookIconMiniButton(
+                      //   iconWidth: iconSide,
+                      //   iconHeight: iconSide,
+                      //   style: buttonStyle,
+                      //   onPressed: () => _onPressSocialLoginButton('FACEBOOK'),
+                      // ),
                   ]),
                   const SizedBox(height: AppSizes.spacingMedium),
                   MaterialButton(

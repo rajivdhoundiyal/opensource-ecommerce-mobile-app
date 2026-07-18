@@ -474,7 +474,7 @@ class ApiClient {
   }
 
   Future<SignInModel?> socialLogin(String email, String firstName,
-      String lastName, String phone, String signUpType) async {
+      String lastName, String phone, String signUpType, String token) async {
     var response = await (client.clientToQuery()).mutate(
       MutationOptions(
           document: gql(
@@ -483,14 +483,15 @@ class ApiClient {
                 lastName: lastName,
                 email: email,
                 phone: phone,
-                signUpType: signUpType),
+                signUpType: signUpType,
+                token: token),
           ),
           fetchPolicy: FetchPolicy.networkOnly),
     );
     print("response >>>b $response");
     return handleResponse(
       response,
-      'customerSocialSignUp',
+      'customerSocialSignIn',
       (json) => SignInModel.fromJson(json),
     );
   }
@@ -896,10 +897,10 @@ class ApiClient {
   }
 
   //place order
-  Future<SaveOrderModel?> placeOrder(String? omiseToken, String? paymentType, String? amount, String? currency) async {
+  Future<SaveOrderModel?> placeOrder(String? omiseToken, String? paymentType, String? amount, String? currency, String? chargeId) async {
     var response = await (client.clientToQuery()).mutate(MutationOptions(
         document: gql(
-          mutation.placeOrder(omiseToken, paymentType, amount, currency),
+          mutation.placeOrder(omiseToken, paymentType, amount, currency, chargeId),
         ),
         fetchPolicy: FetchPolicy.networkOnly));
 
@@ -1210,5 +1211,20 @@ class ApiClient {
   //         (json) => SetDefaultAddress.fromJson(json),
   //   );
   // }
+  //place order
+
+  Future<SaveOrderModel?> enquirePaymentStatus(String? chargeId) async {
+    var response = await (client.clientToQuery()).query(QueryOptions(
+        document: gql(
+          mutation.enquirePaymentStatus(chargeId),
+        ),
+        fetchPolicy: FetchPolicy.networkOnly));
+
+    return handleResponse(
+      response,
+      'enquireStatus',
+          (json) => SaveOrderModel.fromJson(json),
+    );
+  }
 
 }

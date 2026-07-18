@@ -606,5 +606,11 @@
   "downloadComplete" : "Download complete",
   "downloadProgress" : "Download progress",
   "open" : "OPEN",
-  "subCategories" : "Subcategories"
+  "subCategories" : "Subcategories",
+  "pleaseChoosePaymentType": "Please choose payment method.",
+  "creditCard": "Credit Card",
+  "paynow": "Paynow",
+  "downloadQR": "Save QR",
+  "completePayment": "Scan below Paynow QR Code to complete payment before timer runs out.",
+  "failedPayment": "Your payment is failed due to processing issue, please retry again."
 }

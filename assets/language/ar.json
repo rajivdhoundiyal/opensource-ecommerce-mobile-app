@@ -606,5 +606,11 @@
   "downloadComplete": "اكتمل التنزيل",
   "downloadProgress": "تقدم التنزيل",
   "open": "مفتوح",
-  "subCategories": "الفئات الفرعيه"
+  "subCategories": "الفئات الفرعيه",
+  "pleaseChoosePaymentType": "Please choose payment mode.",
+  "creditCard": "Credit Card",
+  "paynow": "Paynow",
+  "downloadQR": "Save QR",
+  "completePayment": "Scan below Paynow QR Code to complete payment before timer runs out.",
+  "failedPayment": "Your payment is failed due to processing issue, please retry again."
 }

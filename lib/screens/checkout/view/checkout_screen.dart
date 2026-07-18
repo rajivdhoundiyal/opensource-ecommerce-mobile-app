@@ -9,8 +9,10 @@
  */
 
 
+import 'package:bagisto_app_demo/screens/checkout/checkout_payment/view/credit_card_payment.dart';
 import 'package:bagisto_app_demo/screens/checkout/utils/index.dart';
 import '../checkout_payment/view/checkout_payment_view.dart';
+import '../checkout_payment/paynow/view/process_paynow_payment.dart';
 import 'package:omise_flutter/omise_flutter.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -65,6 +67,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String? shippingPhone;
   String shippingId = '';
   String paymentId = "";
+  String? paymentType = "";
   int? billingAddressId;
   int? shippingAddressId;
   bool isUser = false;
@@ -353,7 +356,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             paymentId: paymentId,
             cartDetailsModel: widget.cartDetailsModel,
             cartScreenBloc: widget.cartScreenBloc,
-            callBack: (price) {
+            callBack: (price, pymtType) {
+              paymentType = pymtType;
+              _myStreamCtrl.sink.add(pymtType);
               _myStreamCtrl.sink.add(price);
             },
           ),
@@ -450,6 +455,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   } else if (shippingAddress == null) {
                                     ShowMessage.warningNotification(
                                         StringConstants.pleaseFillShippingAddress.localized(),context);
+                                  } else if (paymentType == '' || paymentType == null) {
+                                    ShowMessage.warningNotification(
+                                        StringConstants.pleaseChoosePaymentType.localized(),context);
                                   }
                                 } else {
                                   setState(() {
@@ -458,12 +466,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 }
                               }
                               if (currentIndex == 5) {
-                                _openPaymentMethodsPage().then((result) => {
-                                  if (context.mounted) {
-                                    Navigator.pushReplacementNamed(
-                                        context, orderPlacedScreen, arguments: result)
-                                  }
-                                });
+                                if(paymentType == StringConstants.creditCard.localized().toString()) {
+                                  _openCreditCardPaymentPage().then((result) => _navigate(result));
+                                } else {
+                                  _openPaynowPaymentPage();
+                                }
                               }
                             },
                             child: Text(
@@ -531,6 +538,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       null) /*||(billing?['address1']==null)*/) {
                                 ShowMessage.warningNotification(
                                     StringConstants.pleaseFillAddress.localized(),context);
+                              } else if (currentIndex == 4 && (paymentType == '' || paymentType == null)) {
+                                ShowMessage.warningNotification(
+                                    StringConstants.pleaseChoosePaymentType.localized(),context);
                               } else {
                                 setState(() {
                                   currentIndex = currentIndex + 1;
@@ -538,12 +548,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               }
                             }
                             if (currentIndex == 5) {
-                              _openPaymentMethodsPage().then((result) => {
-                                  if (context.mounted) {
-                                    Navigator.pushReplacementNamed(
-                                        context, orderPlacedScreen, arguments: result)
-                                  }
-                              });
+                              if(paymentType == StringConstants.creditCard.localized().toString()) {
+                                _openCreditCardPaymentPage().then((result) => _navigate(result));
+                              } else {
+                                _openPaynowPaymentPage();
+                              }
                             }
                           },
                           child: Text(
@@ -567,28 +576,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Future<Map<String, dynamic>?> _openPaymentMethodsPage() async {
-    List<PaymentMethodName> paymentMethodsList = [PaymentMethodName.card];
+  _navigate(result) {
+      Navigator.pushNamed(context, orderPlacedScreen, arguments: result);
+  }
+  
+  Future<Map<String, dynamic>?> _openCreditCardPaymentPage() async {
     final OmisePaymentResult? omisePaymentResult =
-        await Navigator.push<OmisePaymentResult>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => omisePayment.buildCardPage()
-      ),
+        await Navigator.of(context).push<OmisePaymentResult>(
+          MaterialPageRoute(
+            builder: (context) => LOFLCreditCardPage(omiseApiService: omisePayment.omiseApiService)
+        ),
     );
-    // Check if payment result is available
-    if (omisePaymentResult == null) {
-      print('No payment'); // Logs if no payment was made
-    } else {
-      // Logs token ID if available
-      if (omisePaymentResult.token != null) {
-        print(omisePaymentResult.token!.id);
-      }
-      if (omisePaymentResult.source != null) {
-        print(omisePaymentResult.source!.id);
-      }
-    }
-    
-    return {"result": omisePaymentResult?.token?.id, "paymentType": "card", "amount": widget.total, "currency": "SGD"};
+   
+    return {"token": omisePaymentResult?.token?.id, "paymentType": "creditCard", "amount": widget.cartDetailsModel?.grandTotal.toString(), "currency": "SGD"};
+  }
+
+  void _openPaynowPaymentPage() {
+    Map<String, dynamic>? arguments = {"paymentType": "paynow", "amount": widget.cartDetailsModel?.grandTotal.toString(), "currency": "SGD"};
+     Navigator.push<OmisePaymentResult>(
+          context, MaterialPageRoute(
+        builder: (_) => BlocProvider(
+        create: (context) =>
+            SaveOrderBloc(SaveOrderRepositoryImp(), arguments),
+        child: const ProcessPaynowPayment(),
+    )));
   }
 }

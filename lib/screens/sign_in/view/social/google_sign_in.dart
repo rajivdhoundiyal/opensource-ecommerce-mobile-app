@@ -6,7 +6,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 class SocialLoginService {
   
   Future<SignInModel?> doLogin(String? platform) async {
-    if(platform == 'Facebook') {
+    if(platform == 'FACEBOOK') {
       return await FacebookAuthService().login();
     } else {
       return await GoogleAuthService().signInWithGoogle();
@@ -47,14 +47,16 @@ class FacebookAuthService {
       // by default we get the userId, email,name and picture
       final userData = await FacebookAuth.instance.getUserData();
       // final userData = await FacebookAuth.instance.getUserData(fields: "email,birthday,friends,gender,link");
-      return SignInModel(token: result.accessToken?.tokenString, 
-          data: Data(name: userData['name'], email: userData['email']));
+      SignInModel success = SignInModel(token: result.accessToken?.tokenString, 
+          data: Data(name: userData['name'], email: userData['email'], id: userData['id']));
+      success.status = true;
+      return success;
     } else {
       print(result.status);
       print(result.message);
+      throw Exception("Failed to verify facebook user autj");
     }
 
-    return null;
   }
 
   void _printCredentials() {
@@ -85,19 +87,10 @@ class GoogleAuthService {
       // Get authentication tokens from Google
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // Create Firebase credential using Google tokens
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase using the credential
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-
-      // Return authenticated Firebase user
-      
-      return SignInModel(token: userCredential.credential?.accessToken, 
-          data: Data(name: userCredential.user?.displayName, email: userCredential.user?.email));
+      SignInModel success = SignInModel(token: googleAuth.idToken, 
+          data: Data(firstName:  "", lastName: "", name: "", email: "", id: ""));
+      success.status = true;
+      return success;
     } catch (e) {
 
       // Handle sign-in errors

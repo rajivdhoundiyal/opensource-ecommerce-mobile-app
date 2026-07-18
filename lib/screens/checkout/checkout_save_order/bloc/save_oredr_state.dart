@@ -14,7 +14,7 @@ import '../../data_model/save_order_model.dart';
 
 abstract class SaveOrderBaseState {}
 
-enum SaveOrderStatus { success, fail }
+enum SaveOrderStatus { success(true), fail(false); final bool status; const SaveOrderStatus(this.status);  }
 
 class SaveOrderInitialState extends SaveOrderBaseState {
 

@@ -34,14 +34,24 @@ class _CheckOutSaveOrderState extends State<CheckOutSaveOrder> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: _saveOrderBloc(context));
+    return ScaffoldMessenger(
+      child: Scaffold(
+        body: _saveOrderBloc(context)));
   }
 
   ///SaverOrder BLOC CONTAINER///
   _saveOrderBloc(BuildContext context) {
     return BlocConsumer<SaveOrderBloc, SaveOrderBaseState>(
-      listener: (BuildContext context, SaveOrderBaseState state) {},
+      listener: (BuildContext context, SaveOrderBaseState state) {
+        if (state is SaveOrderFetchDataState) {
+          if (state.status == SaveOrderStatus.fail) {
+            ShowMessage.errorNotification(
+              StringConstants.failedPayment.localized(), context);
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          }
+        }
+      },
       builder: (BuildContext context, SaveOrderBaseState state) {
         return buildUI(context, state);
       },
@@ -52,7 +62,7 @@ class _CheckOutSaveOrderState extends State<CheckOutSaveOrder> {
   Widget buildUI(BuildContext context, SaveOrderBaseState state) {
     if (state is SaveOrderFetchDataState) {
       if (state.status == SaveOrderStatus.success) {
-        return _orderPlacedView(state.saveOrderModel!);
+        return _orderPlacedView(context,state.saveOrderModel!);
       }
       if (state.status == SaveOrderStatus.fail) {
         return ErrorMessage.errorMsg(
@@ -67,7 +77,7 @@ class _CheckOutSaveOrderState extends State<CheckOutSaveOrder> {
     return const SizedBox();
   }
 
-  _orderPlacedView(SaveOrderModel saveOrderModel) {
+  _orderPlacedView(BuildContext context, SaveOrderModel saveOrderModel) {
     return Container(
       height: double.infinity,
       padding: const EdgeInsets.all(AppSizes.spacingNormal),

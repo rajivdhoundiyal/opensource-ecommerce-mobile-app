@@ -103,6 +103,7 @@ import '../screens/wishList/bloc/wishlist_repository.dart';
 import '../screens/wishList/view/wishlist_screen.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
+  
   switch (settings.name) {
     case splash:
       return MaterialPageRoute(builder: (_) => const SplashScreen());
@@ -260,7 +261,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
           builder: (_) => BlocProvider(
             create: (context) =>
-                SaveOrderBloc(SaveOrderRepositoryImp(ModalRoute.of(context)!.settings.arguments as Map<String, String>?)),
+                SaveOrderBloc(SaveOrderRepositoryImp(), settings.arguments),
             child: const CheckOutSaveOrder(),
           ));
 

@@ -21,7 +21,8 @@ class SaveOrderModel extends BaseModel{
   String?  selectedMethod;
   Order? order;
   String? chargeId;
-  SaveOrderModel({this.redirectUrl,this.selectedMethod,this.order, this.chargeId});
+  Payment? payment;
+  SaveOrderModel({this.redirectUrl,this.selectedMethod,this.order, this.chargeId, this.payment});
 
   factory SaveOrderModel.fromJson(Map<String, dynamic> json) =>
       _$SaveOrderModelFromJson(json);
@@ -50,3 +51,17 @@ class Order {
       _$OrderToJson(this);
 }
 
+@JsonSerializable()
+class Payment {
+  String? chargeId;
+  String? qrCodePath;
+  String? qrFileLink;
+
+  Payment({this.chargeId,this.qrCodePath, this.qrFileLink,});
+
+  factory Payment.fromJson(Map<String, dynamic> json) =>
+      _$PaymentFromJson(json);
+
+  Map<String, dynamic> toJson() =>
+      _$PaymentToJson(this);
+}

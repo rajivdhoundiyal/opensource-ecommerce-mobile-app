@@ -39,18 +39,25 @@ class SignInBloc extends Bloc<SignInBaseEvent, SignInBaseState> {
     } else if (event is SocialLoginEvent) {
       try {
         SignInModel? signUpResponseModel = null;
-        if(event.signUpType == 'Google' || event.signUpType == 'Facebook') {
+        if(event.signUpType == 'GOOGLE' || event.signUpType == 'FACEBOOK') {
           signUpResponseModel = await SocialLoginService().doLogin(event.signUpType);
+          signUpResponseModel = await repository!.socialLogin(
+              signUpResponseModel?.data?.email ?? "",
+              signUpResponseModel?.data?.firstName ?? "",
+              signUpResponseModel?.data?.lastName ?? "",
+              signUpResponseModel?.data?.phone ?? "",
+              event.signUpType ?? "",
+              signUpResponseModel?.token ?? "");
         } else {
           signUpResponseModel = await repository!.socialLogin(
               event.email ?? "",
               event.firstName ?? "",
               event.lastName ?? "",
-              event.phone ?? "",event.signUpType ?? "");
+              event.phone ?? "",event.signUpType ?? "",
+              "");
         }
 
-
-        if (signUpResponseModel?.status == true) {
+        if (signUpResponseModel?.success == true) {
           emit(SocialLoginState.success(signInModel: signUpResponseModel));
         } else {
           emit(

@@ -18,20 +18,29 @@ import '../../data_model/save_order_model.dart';
 
 class SaveOrderBloc extends Bloc<SaveOrderBaseEvent, SaveOrderBaseState> {
   SaveOrderRepository? repository;
+  Object? arguments;
 
-  SaveOrderBloc(this.repository) : super(SaveOrderInitialState()){
+  SaveOrderBloc(this.repository,this.arguments) : super(SaveOrderInitialState()){
     on<SaveOrderBaseEvent>(mapEventToState);
   }
   void mapEventToState(SaveOrderBaseEvent event,Emitter<SaveOrderBaseState> emit) async {
     if (event is SaveOrderFetchDataEvent) {
       try {
-        SaveOrderModel? saveOrderModel = await repository?.savePaymentReview();
+        Map<String, dynamic> args = arguments as Map<String, dynamic>;
+        SaveOrderModel? saveOrderModel;
+
+        if(args['model'] is SaveOrderModel) {
+          saveOrderModel = args['model'];
+        } else {
+          saveOrderModel = await repository?.savePaymentReview(arguments as Map<String, dynamic>?);
+        }
+        
         if(saveOrderModel?.success==true) {
           emit (SaveOrderFetchDataState.success(saveOrderModel: saveOrderModel));
         }else{
-
+          emit (SaveOrderFetchDataState.fail(error: "Fail to complete payment"));
         }
-        // }
+        
       } catch (e) {
         emit (SaveOrderFetchDataState.fail(error: e.toString()));
       }

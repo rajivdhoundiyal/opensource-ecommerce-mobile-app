@@ -375,7 +375,12 @@ class StringConstants {
   static const String downloadProgress = "downloadProgress";
   static const String open = "open";
   static const String subCategories = "subCategories";
-
+  static const String pleaseChoosePaymentType = "pleaseChoosePaymentType";
+  static const String creditCard = "creditCard";
+  static const String completePayment = "completePayment";
+  static const String failedPayment = "failedPayment";
+  static const String paynow = "paynow";
+  static const String downloadQR = "downloadQR";
 }
 
 

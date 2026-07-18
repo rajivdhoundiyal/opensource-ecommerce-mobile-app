@@ -18,10 +18,10 @@ class CheckoutOrderReviewView extends StatefulWidget {
   final  String? paymentId;
   final Function(
     String,
-  )? callBack;
+  String?)? callBack;
 
   final CartScreenBloc? cartScreenBloc;
-
+   String? paymentType;
    CartModel? cartDetailsModel;
 
    CheckoutOrderReviewView(
@@ -72,7 +72,7 @@ class _CheckoutOrderReviewViewState extends State<CheckoutOrderReviewView> {
           widget.callBack!(state
                   .savePaymentModel?.cart?.formattedPrice?.grandTotal
                   .toString() ??
-              "");
+              "", widget.paymentType);
         }
 
         return _reviewOrder(state.savePaymentModel!);
@@ -104,29 +104,29 @@ class _CheckoutOrderReviewViewState extends State<CheckoutOrderReviewView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          StringConstants.billingAddress.localized().toUpperCase(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: AppSizes.spacingLarge,
-                          ),
-                        ),
-                        CommonWidgets().divider(),
-                        savePaymentModel.cart?.billingAddress != null ?_getFormattedBillingAddress(savePaymentModel): const Text('N/A'),
-                        savePaymentModel.cart?.billingAddress != null ?const SizedBox(height: AppSizes.spacingSmall): const SizedBox.shrink(),
-                        savePaymentModel.cart?.billingAddress != null ?Text(
-                          StringConstants.contact.localized() +
-                              (savePaymentModel.cart?.billingAddress?.phone ??
-                                  ""),
-                          style: const TextStyle(
-                              fontSize: AppSizes.spacingLarge),
-                        ): const SizedBox.shrink(),
-                      ],
-                    ),
+                    // Column(
+                    //   mainAxisAlignment: MainAxisAlignment.start,
+                    //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //   children: [
+                    //     Text(
+                    //       StringConstants.billingAddress.localized().toUpperCase(),
+                    //       style: const TextStyle(
+                    //         fontWeight: FontWeight.bold,
+                    //         fontSize: AppSizes.spacingLarge,
+                    //       ),
+                    //     ),
+                    //     CommonWidgets().divider(),
+                    //     savePaymentModel.cart?.billingAddress != null ?_getFormattedBillingAddress(savePaymentModel): const Text('N/A'),
+                    //     savePaymentModel.cart?.billingAddress != null ?const SizedBox(height: AppSizes.spacingSmall): const SizedBox.shrink(),
+                    //     savePaymentModel.cart?.billingAddress != null ?Text(
+                    //       StringConstants.contact.localized() +
+                    //           (savePaymentModel.cart?.billingAddress?.phone ??
+                    //               ""),
+                    //       style: const TextStyle(
+                    //           fontSize: AppSizes.spacingLarge),
+                    //     ): const SizedBox.shrink(),
+                    //   ],
+                    // ),
                     const SizedBox(height: AppSizes.spacingLarge),
                     Text(
                       StringConstants.shippingAddress.localized().toUpperCase(),
@@ -183,33 +183,6 @@ class _CheckoutOrderReviewViewState extends State<CheckoutOrderReviewView> {
                         )
                       ],
                     ):const SizedBox.shrink(),
-                    const SizedBox(height: AppSizes.spacingLarge),
-                    Text(
-                      StringConstants.paymentMethods.localized().toUpperCase(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: AppSizes.spacingLarge,
-                      ),
-                    ),
-                    const SizedBox(height: AppSizes.spacingSmall),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                    ),
-                    const SizedBox(height: AppSizes.spacingSmall),
-                    Wrap(
-                      children: [
-                        Text(
-                          savePaymentModel.cart?.payment?.methodTitle ??
-                              savePaymentModel.cart?.payment?.method ??
-                              " ",
-                          style: const TextStyle(
-                            fontSize: AppSizes.spacingLarge,
-                            // color: Colors.grey,
-                          ),
-                        )
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -220,6 +193,36 @@ class _CheckoutOrderReviewViewState extends State<CheckoutOrderReviewView> {
                 cartScreenBloc: widget.cartScreenBloc,
                 cartDetailsModel: widget.cartDetailsModel,
                 callback: reload,
+              ),
+              const SizedBox(height: AppSizes.spacingLarge),
+              Text(
+                StringConstants.paymentMethods.localized().toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: AppSizes.spacingLarge,
+                ),
+              ),
+              const SizedBox(height: AppSizes.spacingSmall),
+              const Divider(
+                height: 1,
+                thickness: 1,
+              ),
+              const SizedBox(height: AppSizes.spacingSmall),
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.fromLTRB(0, AppSizes.spacingNormal, 0, AppSizes.spacingSmall),
+                child: RadioButtonGroup(
+                    activeColor: Theme.of(context).colorScheme.onPrimary,
+                    key: const Key('Payment'),
+                    labels: [StringConstants.creditCard.localized().toString(), StringConstants.paynow.localized().toString()],
+                    onChange: (value, index) {
+                      widget.paymentType = value;
+                      if (widget.callBack != null) {
+                        widget.callBack!(widget.cartDetailsModel?.formattedPrice?.grandTotal
+                            .toString() ??
+                        "", widget.paymentType);
+                      }
+                    }),
               )
             ],
           ),
