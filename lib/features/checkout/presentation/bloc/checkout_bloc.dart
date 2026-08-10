@@ -96,7 +96,10 @@ class RemoveCheckoutCoupon extends CheckoutEvent {}
 class ToggleSameAddress extends CheckoutEvent {}
 
 /// Place the order (saves payment first, then creates order)
-class PlaceOrder extends CheckoutEvent {}
+class PlaceOrder extends CheckoutEvent {
+  final Map<String, dynamic> data;
+  const PlaceOrder({required this.data});
+}
 
 /// Clear messages
 class ClearCheckoutMessage extends CheckoutEvent {}
@@ -132,6 +135,9 @@ class FetchCountryStates extends CheckoutEvent {
   List<Object?> get props => [countryId, countryCode, formType];
 }
 
+/// Submit Paynow payment to fetch QR Code & Charge ID.
+class ProcessPayment extends CheckoutEvent {}
+
 // ─── State ─────────────────────────────────────────────────────────────────
 
 enum CheckoutStatus {
@@ -143,6 +149,7 @@ enum CheckoutStatus {
   shippingSaved,
   paymentMethodsFetched,
   paymentSaved,
+  processPayment,
   orderPlaced,
   error,
 }
@@ -188,6 +195,7 @@ class CheckoutState extends Equatable {
   final List<BagistoCountryState> shippingStates;
   final bool billingStatesLoading;
   final bool shippingStatesLoading;
+  final PaymentInfoMethod? paymentInfo;
 
   const CheckoutState({
     this.status = CheckoutStatus.initial,
@@ -215,6 +223,7 @@ class CheckoutState extends Equatable {
     this.shippingStates = const [],
     this.billingStatesLoading = false,
     this.shippingStatesLoading = false,
+    this.paymentInfo
   });
 
   /// Whether all required steps are complete for placing an order.
@@ -256,6 +265,7 @@ class CheckoutState extends Equatable {
     bool clearSelectedShippingAddress = false,
     bool clearSelectedShippingMethod = false,
     bool clearSelectedPaymentMethod = false,
+    PaymentInfoMethod? paymentInfo
   }) {
     return CheckoutState(
       status: status ?? this.status,
@@ -295,6 +305,7 @@ class CheckoutState extends Equatable {
       shippingStatesLoading:
           shippingStatesLoading ?? this.shippingStatesLoading,
       isVirtualOnly: isVirtualOnly ?? this.isVirtualOnly,
+      paymentInfo: paymentInfo ?? this.paymentInfo
     );
   }
 
@@ -325,6 +336,7 @@ class CheckoutState extends Equatable {
     billingStatesLoading,
     shippingStatesLoading,
     isVirtualOnly,
+    paymentInfo
   ];
 }
 
@@ -359,6 +371,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<FetchCountries>(_onFetchCountries);
     on<FetchCountryStates>(_onFetchCountryStates);
     on<RefreshSavedAddresses>(_onRefreshSavedAddresses);
+    on<ProcessPayment>(_onProcessPayment);
   }
 
   /// Refresh the repo's Bearer auth token from the latest source.
@@ -1386,7 +1399,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       return;
     }
 
-    emit(state.copyWith(isPlacingOrder: true, clearError: true));
+    if(state.selectedPaymentMethod != 'paynow') {
+      emit(state.copyWith(isPlacingOrder: true, clearError: true));
+    }
     _refreshAuthToken();
 
     try {
@@ -1394,7 +1409,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       if (state.selectedPaymentMethod != null &&
           state.selectedPaymentMethod!.isNotEmpty) {
         final payResp = await repository.savePaymentMethod(
-          state.selectedPaymentMethod!,
+          'omise_button', //state.selectedPaymentMethod!,
         );
         debugPrint('[CheckoutBloc] savePayment success=${payResp.success}');
         if (!payResp.success) {
@@ -1407,8 +1422,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           return;
         }
       }
+      
       // Place the order
-      final response = await repository.placeOrder();
+      final response = await repository.placeOrder(event.data);
       debugPrint('[CheckoutBloc] placeOrder orderId=${response.orderId}');
       if (response.success) {
         emit(
@@ -1645,6 +1661,46 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           state.copyWith(billingStates: const [], billingStatesLoading: false),
         );
       }
+    }
+  }
+
+  Future<void> _onProcessPayment(
+    ProcessPayment event,
+    Emitter<CheckoutState> emit,
+  ) async {
+    emit(state.copyWith(isPlacingOrder: true, clearError: true));
+    try {
+      const Map<String, dynamic> input = { "paymentType": "paynow" };
+
+      final response = await repository.processPayment(input);
+      if (response.success) {
+        emit(
+          state.copyWith(
+            isPlacingOrder: false,
+            paymentInfo: response,
+            status: CheckoutStatus.processPayment,
+            successMessage: response.message ?? 'Paynow payment details processesd sucessfully',
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            isPlacingOrder: false,
+            errorMessage: response.message ?? 'Paynow payment details processesd un-sucessfully',
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('[CheckoutBloc] Paynow payment error: $e');
+      emit(
+        state.copyWith(
+          isPlacingOrder: false,
+          errorMessage: ErrorMapper.getUserMessage(
+            e,
+            context: 'applying the coupon',
+          ),
+        ),
+      );
     }
   }
 }

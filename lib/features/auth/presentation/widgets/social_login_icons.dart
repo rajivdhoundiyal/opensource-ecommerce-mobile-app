@@ -1,5 +1,7 @@
+import 'package:bagisto_flutter/features/auth/data/models/auth_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../service/social_login_service.dart';
 
 /// Social login icons: Google, Facebook, Apple
 /// Figma: node-id=209-3764 (Frame 1984079277)
@@ -7,7 +9,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// Layout: Row, gap 24px, centered
 /// Each icon: 40×40 circle with white fill
 class SocialLoginIcons extends StatelessWidget {
-  const SocialLoginIcons({super.key});
+  final Function(CustomerLogin, String) callback;
+
+  const SocialLoginIcons({super.key, required this.callback});
 
   @override
   Widget build(BuildContext context) {
@@ -20,28 +24,31 @@ class SocialLoginIcons extends StatelessWidget {
           assetPath: 'assets/images/google_icon.svg',
           label: 'Google',
           isDark: isDark,
-          onTap: () {
+          onTap: () async {
+            CustomerLogin login = await SocialLoginService.doLogin('Google');
+            debugPrint("✅ Google Login Success, executing callback...");
+            callback(login, 'Google');
             // TODO: Implement Google sign-in
           },
         ),
-        const SizedBox(width: 24),
-        _SocialIconButton(
-          assetPath: 'assets/images/facebook_icon.svg',
-          label: 'Facebook',
-          isDark: isDark,
-          onTap: () {
-            // TODO: Implement Facebook sign-in
-          },
-        ),
-        const SizedBox(width: 24),
-        _SocialIconButton(
-          assetPath: 'assets/images/apple_icon.svg',
-          label: 'Apple',
-          isDark: isDark,
-          onTap: () {
-            // TODO: Implement Apple sign-in
-          },
-        ),
+        // const SizedBox(width: 24),
+        // _SocialIconButton(
+        //   assetPath: 'assets/images/facebook_icon.svg',
+        //   label: 'Facebook',
+        //   isDark: isDark,
+        //   onTap: () {
+        //     // TODO: Implement Facebook sign-in
+        //   },
+        // ),
+        // const SizedBox(width: 24),
+        // _SocialIconButton(
+        //   assetPath: 'assets/images/apple_icon.svg',
+        //   label: 'Apple',
+        //   isDark: isDark,
+        //   onTap: () {
+        //     // TODO: Implement Apple sign-in
+        //   },
+        // ),
       ],
     );
   }

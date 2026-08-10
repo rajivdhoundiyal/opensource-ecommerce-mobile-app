@@ -1,3 +1,4 @@
+import 'package:bagisto_flutter/features/auth/data/models/auth_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,6 +8,7 @@ import '../bloc/auth_bloc.dart';
 import 'forgot_password_page.dart';
 import 'sign_up_page.dart';
 import '../../../../core/widgets/app_back_button.dart';
+import '../widgets/social_login_icons.dart';
 
 /// Login page for existing customers
 /// Figma: authentication flow — login screen
@@ -50,6 +52,15 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
+  }
+
+  void _handleSocialLogin(CustomerLogin login, String platform) {
+    context.read<AuthBloc>().add(
+      SocialLoginRequested(
+        token: login.token ?? '',
+        platform: platform
+      ),
+    );
   }
 
   @override
@@ -276,46 +287,46 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 36),
 
                   // ── Divider with "Sign in with" ──
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: Divider(
-                  //         color: isDark
-                  //             ? AppColors.neutral700
-                  //             : AppColors.neutral200,
-                  //       ),
-                  //     ),
-                  //     Padding(
-                  //       padding: const EdgeInsets.symmetric(horizontal: 16),
-                  //       child: Text(
-                  //         'Sign in with',
-                  //         style: TextStyle(
-                  //           fontFamily: 'Roboto',
-                  //           fontWeight: FontWeight.w400,
-                  //           fontSize: 16,
-                  //           height: 1.17,
-                  //           color: isDark
-                  //               ? AppColors.neutral400
-                  //               : AppColors.neutral600,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     Expanded(
-                  //       child: Divider(
-                  //         color: isDark
-                  //             ? AppColors.neutral700
-                  //             : AppColors.neutral200,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  //
-                  // const SizedBox(height: 18),
-                  //
-                  // // ── Social Login Icons ──
-                  // const Center(child: SocialLoginIcons()),
-                  //
-                  // const SizedBox(height: 36),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          color: isDark
+                              ? AppColors.neutral700
+                              : AppColors.neutral200,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'Sign in with',
+                          style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            height: 1.17,
+                            color: isDark
+                                ? AppColors.neutral400
+                                : AppColors.neutral600,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          color: isDark
+                              ? AppColors.neutral700
+                              : AppColors.neutral200,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 18),
+                  
+                  // ── Social Login Icons ──
+                  Center(child: SocialLoginIcons(callback: _handleSocialLogin)),
+                  
+                  const SizedBox(height: 36),
 
                   // ── Sign Up Link ──
                   Row(
@@ -368,7 +379,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildLogo(bool isDark) {
     return Center(
       child: SvgPicture.asset(
-        'assets/images/bagisto_logo.svg',
+        'assets/images/lofl_brand.svg',
         height: 60,
         width: 60,
       ),

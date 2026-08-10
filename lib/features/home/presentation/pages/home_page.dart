@@ -325,13 +325,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     Row(
                       children: [
                         SvgPicture.asset(
-                          'assets/images/bagisto_logo.svg',
+                          'assets/images/lofl_brand.svg',
                           width: 20,
                           height: 20,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'bagisto',
+                          'Lord Of Liquor',
                           style: TextStyle(
                             fontFamily: 'Montserrat',
                             fontWeight: FontWeight.w700,

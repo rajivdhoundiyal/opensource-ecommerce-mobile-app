@@ -71,6 +71,59 @@ class AuthRepository {
     return loginResult;
   }
 
+  Future<Customer> socialLogin({
+    required String token,
+    required String platform,
+    String? deviceToken,
+  }) async {
+    debugPrint('🔐 AuthRepo.social.login — token: $token, platform: $platform');
+
+    // Get device token if not provided
+    deviceToken = deviceToken ?? await DeviceTokenService.getDeviceToken();
+
+    final result = await client.mutate(
+      MutationOptions(
+        document: gql(socialLoginMutation),
+        variables: {
+          'input': {
+            'token': token,
+            'platform': platform,
+            'deviceToken': deviceToken,
+          },
+        },
+        fetchPolicy: FetchPolicy.noCache,
+      ),
+    );
+
+    if (result.hasException) {
+      final message = _extractErrorMessage(result.exception!);
+      debugPrint('🔐 AuthRepo.social.login — exception: $message');
+      throw AuthException(message);
+    }
+
+    debugPrint('🔐 AuthRepo.social.login — raw data: ${result.data}');
+
+    final data = result.data?['createSocialLogin']?['socialLogin'];
+    if (data == null) {
+      debugPrint('🔐 AuthRepo.social.login — SocialLogin is null');
+      throw AuthException('Invalid response from server');
+    }
+
+    final loginResult = Customer.fromJson(data);
+    if (!loginResult.success) {
+      throw AuthException(loginResult.message ?? 'Login failed');
+    }
+
+    debugPrint(
+      '🔐 AuthRepo.social.login — success, token: ${loginResult.token?.substring(0, 10)}...',
+    );
+    if (token != null) {
+      debugPrint(
+        '🔐 AuthRepo.social.login — device token sent: ${token.substring(0, 20)}...',
+      );
+    }
+    return loginResult;
+  }
   /// Register a new customer.
   /// Matches Bagisto API: firstName, lastName, email, password, confirmPassword
   /// Automatically includes FCM device token in the request if available.

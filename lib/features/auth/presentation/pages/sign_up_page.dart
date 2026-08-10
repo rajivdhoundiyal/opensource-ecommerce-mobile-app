@@ -407,7 +407,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _buildLogo(bool isDark) {
     return Center(
       child: SvgPicture.asset(
-        'assets/images/bagisto_logo.svg',
+        'assets/images/lofl_brand.svg',
         height: 60,
         width: 60,
       ),

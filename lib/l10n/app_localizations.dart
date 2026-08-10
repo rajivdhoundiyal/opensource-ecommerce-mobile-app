@@ -3233,6 +3233,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shipped Qty : {qty}'**
   String accountShippedQtyValue(int qty);
+
+  /// No description provided for @paynow.
+  ///
+  /// In en, this message translates to:
+  /// **'Paynow'**
+  String get paynow;
+
+  /// No description provided for @downloadQR.
+  ///
+  /// In en, this message translates to:
+  /// **'Download QR'**
+  String get downloadQR;
+
+  /// No description provided for @completePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan below Paynow QR Code to complete payment before timer runs out.'**
+  String get completePayment;
+
+  /// No description provided for @failedPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is failed due to processing issue, please retry again.'**
+  String get failedPayment;
 }
 
 class _AppLocalizationsDelegate

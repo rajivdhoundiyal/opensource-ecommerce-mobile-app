@@ -408,6 +408,35 @@ class CouponResponse {
   }
 }
 
+class PaymentInfoMethod {
+  final String? id;
+  final String qrFileLink;
+  final String qrCodePath;
+  final String chargeId;
+  final bool success;
+  final String? message;
+
+  const PaymentInfoMethod({
+    this.id,
+    required this.qrFileLink,
+    required this.qrCodePath,
+    required this.chargeId,
+    this.success = false,
+    this.message,
+  });
+
+  factory PaymentInfoMethod.fromJson(Map<String, dynamic> json) {
+    return PaymentInfoMethod(
+      id: json['id']?.toString(),
+      qrFileLink: json['qrFileLink'].toString(),
+      qrCodePath: json['qrCodePath'].toString(),
+      chargeId: json['chargeId'].toString(),
+      success: json['success'] as bool? ?? (json['orderId'] != null),
+      message: json['message'] as String?,
+    );
+  }
+}
+
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
 double _parseDouble(dynamic value) {

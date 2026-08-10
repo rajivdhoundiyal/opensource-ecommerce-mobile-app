@@ -162,8 +162,8 @@ class CheckoutMutations {
 
   /// Place order
   static const String createCheckoutOrder = r'''
-    mutation createCheckoutOrder {
-      createCheckoutOrder(input: {}) {
+    mutation createCheckoutOrder($input: createCheckoutOrderInput!) {
+      createCheckoutOrder(input: $input) {
         checkoutOrder {
           id
           orderId
@@ -220,4 +220,20 @@ class CheckoutMutations {
       }
     }
   ''';
+
+  /// Process Paynow order
+  static const String createCharge = r'''
+    mutation createCheckoutProcessPayment($input: createCheckoutProcessPaymentInput!) {
+      createCheckoutProcessPayment(input: $input) {
+        checkoutProcessPayment {
+          qrFileLink
+          chargeId
+          qrCodePath
+          success
+          message
+        }
+      }
+    } 
+  ''';
+
 }

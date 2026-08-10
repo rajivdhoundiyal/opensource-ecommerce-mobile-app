@@ -1703,4 +1703,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String accountShippedQtyValue(int qty) {
     return 'Gönderilen Adet : $qty';
   }
+
+  @override
+  String get paynow => 'Paynow';
+
+  @override
+  String get downloadQR => 'Download QR';
+
+  @override
+  String get completePayment =>
+      'Scan below Paynow QR Code to complete payment before timer runs out.';
+
+  @override
+  String get failedPayment =>
+      'Your payment is failed due to processing issue, please retry again.';
 }

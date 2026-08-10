@@ -494,31 +494,33 @@ class CheckoutRepository {
       '[CheckoutRepo] getPaymentMethods queryToken="$qToken" (authToken=${_authToken != null && _authToken!.length > 8 ? _authToken!.substring(0, 8) : _authToken}…)',
     );
 
-    final result = await _authedClient.query(
-      QueryOptions(
-        document: gql(CheckoutQueries.getPaymentMethods),
-        variables: {'token': qToken},
-        fetchPolicy: FetchPolicy.noCache,
-      ),
-    );
+    // final result = await _authedClient.query(
+    //   QueryOptions(
+    //     document: gql(CheckoutQueries.getPaymentMethods),
+    //     variables: {'token': qToken},
+    //     fetchPolicy: FetchPolicy.noCache,
+    //   ),
+    // );
 
-    if (result.hasException) {
-      debugPrint('[CheckoutRepo] getPaymentMethods error: ${result.exception}');
-      throw result.exception!;
-    }
+    // if (result.hasException) {
+    //   debugPrint('[CheckoutRepo] getPaymentMethods error: ${result.exception}');
+    //   throw result.exception!;
+    // }
 
-    _logCheckoutApiDetails(
-      'getPaymentMethods',
-      variables: {'token': qToken},
-      responseData: result.data,
-    );
+    // _logCheckoutApiDetails(
+    //   'getPaymentMethods',
+    //   variables: {'token': qToken},
+    //   responseData: result.data,
+    // );
 
-    final list = result.data?['collectionPaymentMethods'] as List?;
-    if (list == null) return [];
+    // final list = result.data?['collectionPaymentMethods'] as List?;
+    // if (list == null) return [];
 
-    return list
-        .map((e) => PaymentMethod.fromJson(e as Map<String, dynamic>))
-        .toList();
+    // return list
+    //     .map((e) => PaymentMethod.fromJson(e as Map<String, dynamic>))
+    //     .toList();
+
+    return [PaymentMethod(id: 'credit_card', method: 'credit_card', title: 'Credit Card', description: 'Visa, Mastercard etc.'), PaymentMethod(id: 'paynow', method: 'paynow', title: 'Paynow', description: 'QR Code')];
   }
 
   // ─── Mutations ───────────────────────────────────────────────────────────
@@ -682,10 +684,10 @@ class CheckoutRepository {
   }
 
   /// Place the final order
-  Future<CheckoutOrderResponse> placeOrder() async {
+  Future<CheckoutOrderResponse> placeOrder(Map<String, dynamic> input) async {
     debugPrint('[CheckoutRepo] placeOrder...');
     final result = await _authedClient.mutate(
-      MutationOptions(document: gql(CheckoutMutations.createCheckoutOrder)),
+      MutationOptions(document: gql(CheckoutMutations.createCheckoutOrder), variables: { 'input' : input}),
     );
 
     if (result.hasException) {
@@ -769,5 +771,29 @@ class CheckoutRepository {
     }
 
     return CouponResponse.fromJson(data);
+  }
+
+  /// Place the final order
+  Future<PaymentInfoMethod> processPayment(Map<String, dynamic> input) async {
+    debugPrint('[CheckoutRepo] processPayment...');
+    final result = await _authedClient.mutate(
+      MutationOptions(document: gql(CheckoutMutations.createCharge), variables: { 'input' : input}),
+    );
+
+    if (result.hasException) {
+      debugPrint('[CheckoutRepo] processPayment error: ${result.exception}');
+      throw result.exception!;
+    }
+
+    _logCheckoutApiDetails('processPayment', responseData: result.data);
+
+    final data =
+        result.data?['createCheckoutProcessPayment']?['checkoutProcessPayment']
+            as Map<String, dynamic>?;
+    if (data == null) {
+      throw Exception('Failed to process Payment – null response');
+    }
+
+    return PaymentInfoMethod.fromJson(data);
   }
 }

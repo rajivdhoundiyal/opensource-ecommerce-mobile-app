@@ -45,6 +45,8 @@ class Customer {
   final String? isSuspended;
   final bool? subscribedToNewsLetter;
   final String? customerGroupId;
+  final String? message;
+  final bool success;
 
   const Customer({
     this.id,
@@ -61,6 +63,8 @@ class Customer {
     this.isSuspended,
     this.subscribedToNewsLetter,
     this.customerGroupId,
+    this.message,
+    this.success = false,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -79,6 +83,8 @@ class Customer {
       isSuspended: json['isSuspended']?.toString(),
       subscribedToNewsLetter: _parseBool(json['subscribedToNewsLetter']),
       customerGroupId: json['customerGroupId']?.toString(),
+      message: json['message']?.toString(),
+      success: _parseBool(json['success']),
     );
   }
 

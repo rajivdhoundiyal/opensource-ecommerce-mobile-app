@@ -759,5 +759,9 @@
         "type": "int"
       }
     }
-  }
+  },
+  "paynow" : "Paynow",
+  "downloadQR" : "Download QR",
+  "completePayment" : "Scan below Paynow QR Code to complete payment before timer runs out.",
+  "failedPayment" : "Your payment is failed due to processing issue, please retry again."
 }

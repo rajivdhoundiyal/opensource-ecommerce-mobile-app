@@ -15,6 +15,20 @@ const String loginMutation = r'''
   }
 ''';
 
+const String socialLoginMutation = r'''
+  mutation createSocialLogin($input: createSocialLoginInput!) {
+      createSocialLogin(input: $input) {
+        socialLogin {
+          id
+          apiToken
+          token
+          message
+          success
+        }
+      }
+    }
+''';
+
 const String registerMutation = r'''
   mutation registerCustomer($input: createCustomerInput!) {
     createCustomer(input: $input) {

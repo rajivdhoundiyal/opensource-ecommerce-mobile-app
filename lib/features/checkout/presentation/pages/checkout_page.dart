@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bagisto_flutter/features/checkout/presentation/bloc/payment/paynow_payment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -21,6 +22,9 @@ import '../helpers/checkout_address_sheet_helpers.dart';
 import '../widgets/checkout_address_selection_sheet.dart';
 import '../widgets/checkout_interaction_blocker.dart';
 import 'thankyou_page.dart';
+import 'package:omise_flutter/omise_flutter.dart';
+import 'package:omise_flutter/src/models/omise_payment_result.dart';
+import '../bloc/payment/credit_card_payment.dart';
 
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({super.key});
@@ -146,6 +150,15 @@ class _CheckoutPageViewState extends State<_CheckoutPageView> {
   // For logged-in address selection
   CheckoutAddress? _selectedBillingAddress;
   CheckoutAddress? _selectedShippingAddress;
+
+  final ValueNotifier<bool> placeOrderNotifier = ValueNotifier<bool>(false);
+
+
+  final omisePayment = OmisePayment(
+    publicKey: "pkey_test_62ilojq0zt9viuuifd0",
+    enableDebug: true,
+    locale: OmiseLocale.en,
+  );
 
   bool _isGuestCheckout(BuildContext context, CartState cartState) {
     final authState = context.read<AuthBloc>().state;
@@ -358,6 +371,12 @@ class _CheckoutPageViewState extends State<_CheckoutPageView> {
       child: BlocConsumer<CheckoutBloc, CheckoutState>(
         listener: (context, state) {
           if (state.errorMessage != null) {
+            debugPrint(state.selectedPaymentMethod);
+            if(state.selectedPaymentMethod == 'paynow' && state.status == CheckoutStatus.processPayment) {
+              placeOrderNotifier.value = false;
+              Navigator.of(context).pop();
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
@@ -367,10 +386,16 @@ class _CheckoutPageViewState extends State<_CheckoutPageView> {
             _couponController.clear();
             context.read<CheckoutBloc>().add(ClearCheckoutMessage());
           }
+
           if (state.successMessage != null &&
               state.status == CheckoutStatus.orderPlaced) {
             // Reload cart after successful order
             context.read<CartBloc>().add(LoadCart());
+            placeOrderNotifier.value = true;
+            if(state.selectedPaymentMethod == 'paynow' && state.isPlacingOrder) {
+              placeOrderNotifier.value = false;
+              Navigator.of(context).pop();
+            }
             // Navigate to Thank You page (replaces checkout in the stack)
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -381,6 +406,26 @@ class _CheckoutPageViewState extends State<_CheckoutPageView> {
               ),
             );
           }
+
+          debugPrint(state.successMessage?.length.toString());
+          debugPrint(state.status.toString());
+          debugPrint(state.selectedPaymentMethod);
+          debugPrint((state.successMessage != null &&
+              state.status == CheckoutStatus.processPayment && state.selectedPaymentMethod == "paynow").toString());
+
+          if (state.successMessage != null && state.errorMessage == null &&
+              state.status == CheckoutStatus.processPayment && state.selectedPaymentMethod == "paynow") {
+            debugPrint("Entered....");
+            
+            context.read<CheckoutBloc>().add(PlaceOrder(data: { "paymentType": "paynow", "chargeId": state.paymentInfo?.chargeId}));
+            // Navigate to Thank You page (replaces checkout in the stack)
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PaynowPaymentPage(qrLink: state.paymentInfo?.qrFileLink ?? "", chargeId: state.paymentInfo?.chargeId ?? "", placeOrderNotifier: placeOrderNotifier,),
+              ),
+            );
+          }
+
           // Sync local address selections with bloc state
           if (state.selectedAddress != null &&
               _selectedBillingAddress == null) {
@@ -2829,7 +2874,7 @@ class _CheckoutPageViewState extends State<_CheckoutPageView> {
             GestureDetector(
               onTap: (!canPlace || state.isPlacingOrder)
                   ? null
-                  : () => context.read<CheckoutBloc>().add(PlaceOrder()),
+                  : () => _handlePlaceOrder(state, context), //context.read<CheckoutBloc>().add(PlaceOrder()),
               child: Container(
                 width: 131,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2888,4 +2933,30 @@ class _CheckoutPageViewState extends State<_CheckoutPageView> {
 
   // _showOrderSuccessDialog removed — navigation to ThankyouPage is
   // handled directly in the BlocConsumer listener above.
+
+  Future<Map<String, dynamic>> _openCreditCardPaymentPage(CheckoutState state) async {
+    final OmisePaymentResult? omisePaymentResult =
+        await Navigator.of(context).push<OmisePaymentResult>(
+          MaterialPageRoute(
+            builder: (context) => LOFLCreditCardPage(omiseApiService: omisePayment.omiseApiService)
+        ),
+    );
+   
+    return {"paymentToken": omisePaymentResult?.token?.id, "paymentType": "credit_card"};
+  }
+
+  void _handlePlaceOrder(CheckoutState state, BuildContext context) {
+    debugPrint("_handlePlaeOrder");
+    if(state.selectedPaymentMethod == 'credit_card') {
+        // Navigate to Thank You page (replaces checkout in the stack)
+        _openCreditCardPaymentPage(state).then((result) => {
+          if(context.mounted) {
+            context.read<CheckoutBloc>().add(PlaceOrder(data: result))
+          }
+        });           
+    } else if(state.selectedPaymentMethod == 'paynow') {
+      state.copyWith(isPlacingOrder: true, clearError: true, status: CheckoutStatus.loading);
+      context.read<CheckoutBloc>().add(ProcessPayment());
+    }
+  }
 }

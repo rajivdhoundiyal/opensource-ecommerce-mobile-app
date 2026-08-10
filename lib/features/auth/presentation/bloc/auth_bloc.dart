@@ -30,6 +30,21 @@ class AuthLoginRequested extends AuthEvent {
   List<Object?> get props => [email, password, deviceToken];
 }
 
+class SocialLoginRequested extends AuthEvent {
+  final String token;
+  final String platform;
+  final String? deviceToken;
+
+  const SocialLoginRequested({
+    required this.token,
+    required this.platform,
+    this.deviceToken,
+  });
+
+  @override
+  List<Object?> get props => [token, platform, deviceToken];
+}
+
 class AuthRegisterRequested extends AuthEvent {
   final String firstName;
   final String lastName;
@@ -147,6 +162,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required this.repository}) : super(const AuthInitial()) {
     on<AuthCheckStatus>(_onCheckStatus);
     on<AuthLoginRequested>(_onLogin);
+    on<SocialLoginRequested>(_onSocialLogin);
     on<AuthRegisterRequested>(_onRegister);
     on<AuthForgotPasswordRequested>(_onForgotPassword);
     on<AuthLogoutRequested>(_onLogout);
@@ -214,6 +230,59 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           token: token,
           userName: event.email,
           userEmail: event.email,
+          userId: userId,
+          deviceToken: deviceToken,
+        ),
+      );
+    } on AuthException catch (e) {
+      debugPrint('❌ Login failed: ${e.message}');
+      emit(AuthError(message: e.message));
+    } catch (e) {
+      debugPrint('❌ Login error: $e');
+      emit(const AuthError(message: 'Something went wrong. Please try again.'));
+    }
+  }
+
+  Future<void> _onSocialLogin(
+    SocialLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    try {
+      // Get device token if not provided
+      final deviceToken =
+          event.deviceToken ?? await DeviceTokenService.getDeviceToken();
+
+      final loginResult = await repository.socialLogin(
+        token: event.token,
+        platform: event.platform,
+        deviceToken: deviceToken,
+      );
+
+      final token = loginResult.token ?? loginResult.apiToken ?? '';
+      if (token.isEmpty) {
+        emit(const AuthError(message: 'No token received from server'));
+        return;
+      } else {
+        debugPrint("✅ Login token received");
+      }
+
+      final userId = loginResult.id;
+
+      // Persist token and user info
+      await AuthStorage.saveToken(token);
+      await AuthStorage.saveUserInfo(
+        name: loginResult.name ?? loginResult.email,
+        email: loginResult.email,
+        userId: userId,
+      );
+
+      debugPrint('✅ Login successful — token: ${token.substring(0, 10)}..., userId: $userId');
+      emit(
+        AuthAuthenticated(
+          token: token,
+          userName: loginResult.name ?? loginResult.email,
+          userEmail: loginResult.email,
           userId: userId,
           deviceToken: deviceToken,
         ),
